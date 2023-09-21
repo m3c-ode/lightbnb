@@ -11,6 +11,13 @@ const pool = new Pool({
   database: 'lightbnb'
 });
 
+const query = (queryString, queryParams, callback) => {
+  console.log('executed query: ', queryString);
+  return pool.query(queryString, queryParams, callback)
+    .then(res => res.rows)
+    .catch(error => console.log('error querying', error.message));
+};
+
 
 // the following assumes that you named your connection variable `pool`
 // pool.query(`SELECT title FROM properties LIMIT 10;`).then(response => { console.log(response.rows); });
@@ -30,15 +37,27 @@ const getUserWithEmail = function(email) {
   //   }
   // }
   // return Promise.resolve(resolvedUser);
-  return pool
-    .query(`
+  // return pool
+  //   .query(`
+  //   SELECT * from users
+  //   WHERE email = $1
+  //   `, [email])
+  //   .then((result) => {
+  //     // returns undefined if no match found
+  //     if (result.rowCount === 0) return null;
+  //     return result.rows[0];
+  //   })
+  //   .catch((err) => {
+  //     console.log(err.message);
+  //   });
+
+  return query(`
     SELECT * from users
     WHERE email = $1
     `, [email])
-    .then((result) => {
-      // returns undefined if no match found
-      if (result.rowCount === 0) return null;
-      return result.rows[0];
+    .then(res => {
+      if (res.length === 0) return null;
+      return res[0];
     })
     .catch((err) => {
       console.log(err.message);
@@ -58,7 +77,7 @@ const getUserWithId = function(id) {
     WHERE id = $1
     `, [id])
     .then((result) => {
-      console.log("🚀 ~ file: database.js:61 ~ .then ~ result:", result);
+      // console.log("🚀 ~ file: database.js:61 ~ .then ~ result:", result);
       if (result.rowCount === 0) return null;
       return result.rows[0];
     })
