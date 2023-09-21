@@ -11,7 +11,6 @@ router.post("/", (req, res) => {
   database
     .addUser(user)
     .then((user) => {
-      console.log("🚀 ~ file: userRoutes.js:14 ~ .then ~ user:", user);
       if (!user) {
         return res.send({ error: "error" });
       }
@@ -19,7 +18,9 @@ router.post("/", (req, res) => {
       req.session.userId = user.id;
       res.send("🤗");
     })
-    .catch((e) => res.send(e));
+    .catch((e) => {
+      res.send(e.message);
+    });
 });
 
 // Log a user in

@@ -58,6 +58,7 @@ const getUserWithId = function(id) {
     WHERE id = $1
     `, [id])
     .then((result) => {
+      console.log("🚀 ~ file: database.js:61 ~ .then ~ result:", result);
       if (result.rowCount === 0) return null;
       return result.rows[0];
     })
@@ -72,26 +73,29 @@ const getUserWithId = function(id) {
  * @return {Promise<{}>} A promise to the user.
  */
 const addUser = function(user) {
-  // const userId = Object.keys(users).length + 1;
-  // user.id = userId;
-  // users[userId] = user;
-  // return Promise.resolve(user);
-
   // Check if user already exists??
-
-  return pool
-    .query(`
-    INSERT INTO users (name, password, email) VALUES (
-      $1, $2, $3
-    )
-    RETURNING *;
-    `, [user.name, user.password, user.email])
-    .then((result) => {
-      return result.rows[0];
-    })
-    .catch((err) => {
-      console.log(err.message);
+  return getUserWithEmail(user.email)
+    .then(res => {
+      if (res) {
+        throw new Error("User with email already exists");
+      }
+      else {
+        return pool
+          .query(`
+            INSERT INTO users (name, password, email) VALUES (
+              $1, $2, $3
+            )
+            RETURNING *;
+            `, [user.name, user.password, user.email])
+          .then((result) => {
+            return result.rows[0];
+          })
+          .catch((err) => {
+            console.log(err.message);
+          });
+      }
     });
+
 };
 
 /// Reservations
@@ -202,14 +206,30 @@ const getAllProperties = function(options, limit = 10) {
 
 /**
  * Add a property to the database
- * @param {{}} property An object containing all of the property details.
+ * @param {{
+    * owner_id: int,
+    * title: string,
+    * description?: string,
+    * thumbnail_photo_url: string,
+    * cover_photo_url: string,
+    * cost_per_night: string,
+    * street: string,
+    * city: string,
+    * province: string,
+    * post_code: string,
+    * country: string,
+    * parking_spaces: int,
+    * number_of_bathrooms: int,
+    * number_of_bedrooms: int
+ * }} property An object containing all of the property details.
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
+  // const propertyId = Object.keys(properties).length + 1;
+  // property.id = propertyId;
+  // properties[propertyId] = property;
+  // return Promise.resolve(property);
+
 };
 
 module.exports = {
