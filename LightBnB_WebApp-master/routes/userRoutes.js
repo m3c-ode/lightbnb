@@ -11,6 +11,7 @@ router.post("/", (req, res) => {
   database
     .addUser(user)
     .then((user) => {
+      console.log("🚀 ~ file: userRoutes.js:14 ~ .then ~ user:", user);
       if (!user) {
         return res.send({ error: "error" });
       }
@@ -27,6 +28,7 @@ router.post("/login", (req, res) => {
   const password = req.body.password;
 
   database.getUserWithEmail(email).then((user) => {
+    console.log("🚀 ~ file: userRoutes.js:30 ~ database.getUserWithEmail ~ user:", user);
     if (!user) {
       return res.send({ error: "no user with that id" });
     }
